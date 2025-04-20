@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Music Composition Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: #121212;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      resize: vertical;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      width: 100%;
+      background-color: #4f46e5;
+      color: white;
+      font-size: 1rem;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #4338ca;
+    }
+    .output {
+      margin-top: 1.5rem;
+      background-color: #1f1f1f;
+      padding: 1rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4f46e5;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Music Composition Generator</h1>
+    <textarea id="prompt" placeholder="Describe your music style, mood, or theme..."></textarea>
+    <button onclick="generateMusic()" id="generateBtn">Generate Composition</button>
+    <div class="output" id="output" style="display: none;"></div>
+    <button onclick="playSong()" id="playBtn" style="display:none;">Play Song</button>
+  </div>
+  
+  <script>
+    function generateMusic() {
+      const prompt = document.getElementById('prompt').value.trim();
+      const outputDiv = document.getElementById('output');
+      const generateBtn = document.getElementById('generateBtn');
+      const playBtn = document.getElementById('playBtn');
+
+      if (!prompt) {
+        alert('Please enter a prompt to generate music.');
+        return;
+      }
+
+      outputDiv.style.display = 'block';
+      outputDiv.innerHTML = '<span class="loader"></span> Generating your music composition...';
+      generateBtn.disabled = true;
+
+      setTimeout(() => {
+        const lyrics = generateLyrics(prompt); // Function to generate lyrics based on the prompt
+        outputDiv.innerHTML = `
+          Here's your AI-generated composition based on: <strong>"${prompt}"</strong><br><br>
+          🎵 <strong>Generated Music:</strong> [Music description based on the prompt]<br><br>
+          <strong>Generated Lyrics:</strong><br>
+          ${lyrics}
+        `;
+        playBtn.style.display = 'block';  // Show the play button after lyrics are generated
+        generateBtn.disabled = false;
+      }, 2000);
+    }
+
+    function generateLyrics(prompt) {
+      // Placeholder for generating lyrics
+      const generatedLyrics = `
+        Verse 1:<br>
+        The stars are shining bright above,<br>
+        A melody, a voice of love.<br><br>
+        
+        Chorus:<br>
+        We rise and fall, together we stand,<br>
+        With a heart that's full, hand in hand.<br><br>
+        
+        Verse 2:<br>
+        Through the dark, we'll find our way,<br>
+        Our song will guide us, night and day.
+      `;
+      return generatedLyrics;
+    }
+
+    function playSong() {
+      const lyrics = `
+        The stars are shining bright above. 
+        A melody, a voice of love.
+        We rise and fall, together we stand.
+        With a heart that's full, hand in hand.
+        Through the dark, we'll find our way.
+        Our song will guide us, night and day.
+      `;
+      
+      const speechSynthesis = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(lyrics);
+      utterance.lang = "hi-IN";  // Set language to Hindi
+      utterance.rate = 1;  // Adjust speed
+      utterance.pitch = 1; // Adjust pitch
+      speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
