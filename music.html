@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Music Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      color: white;
+      transition: background 0.5s ease;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      max-width: 700px;
+      width: 100%;
+      animation: fadeIn 1s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(90deg, #ff8a00, #e52e71);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    textarea, select {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 12px;
+      border: none;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      background-color: #1f1f1f;
+      color: white;
+    }
+    button {
+      width: 100%;
+      background: linear-gradient(90deg, #4f46e5, #6d28d9);
+      color: white;
+      font-size: 1rem;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #4338ca, #5b21b6);
+      transform: translateY(-2px);
+    }
+    .output {
+      margin-top: 1.5rem;
+      background-color: #1f1f1f;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .typing {
+      display: inline-block;
+      border-right: 2px solid white;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      from, to { border-color: transparent; }
+      50% { border-color: white; }
+    }
+    canvas {
+      width: 100%;
+      height: 100px;
+      background: #00000033;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+    audio {
+      margin-top: 1rem;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .container { padding: 1.5rem; }
+      textarea, select, button { font-size: 0.95rem; }
+    }
+    @media (max-width: 480px) {
+      h1 { font-size: 1.75rem; }
+      .container { padding: 1rem; border-radius: 15px; }
+      textarea, select, button { font-size: 0.9rem; padding: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎧 AI Music Generator</h1>
+    <textarea id="prompt" placeholder="Describe a mood, story, or message..."></textarea>
+    <select id="genre">
+      <option value="ambient">Ambient</option>
+      <option value="lofi">Lo-fi</option>
+      <option value="pop">Pop</option>
+      <option value="hiphop">Hip-Hop</option>
+      <option value="electronic">Electronic</option>
+    </select>
+    <button onclick="generateMusic()" id="generateBtn">🎶 Generate Music</button>
+    <div class="output" id="output" style="display: none;"></div>
+    <canvas id="visualizer" style="display: none;"></canvas>
+    <audio id="bgm" controls loop style="display: none;"></audio>
+    <button onclick="playSong()" id="playBtn" style="display:none;">▶️ Play Composition</button>
+    <button onclick="downloadLyrics()" id="downloadBtn" style="display:none;">⬇️ Download Lyrics</button>
+  </div>
+
+  <script>
+    let audioContext, analyser, dataArray, canvasCtx;
+
+    function generateMusic() {
+      const prompt = document.getElementById('prompt').value.trim();
+      const genre = document.getElementById('genre').value;
+      const outputDiv = document.getElementById('output');
+      const generateBtn = document.getElementById('generateBtn');
+      const playBtn = document.getElementById('playBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const visualizer = document.getElementById('visualizer');
+
+      if (!prompt) {
+        alert('Please enter a prompt to generate music.');
+        return;
+      }
+
+      outputDiv.style.display = 'block';
+      outputDiv.innerHTML = '<span class="typing">Composing your music...</span>';
+      generateBtn.disabled = true;
+
+      setTimeout(() => {
+        const lyrics = generateLyrics(prompt, genre);
+        outputDiv.innerHTML = `
+<strong>Prompt:</strong> "${prompt}"\n
+<strong>🎼 Genre:</strong> ${genre.charAt(0).toUpperCase() + genre.slice(1)}\n
+<strong>📝 Lyrics:</strong>\n
+${lyrics}`;
+        playBtn.style.display = 'inline-block';
+        downloadBtn.style.display = 'inline-block';
+        visualizer.style.display = 'block';
+        generateBtn.disabled = false;
+      }, 1500);
+    }
+
+    function generateLyrics(prompt, genre) {
+      return `Verse 1:\nLost in the sound, drifting free,\n${genre} vibes surrounding me.\n\nChorus:\nEchoes of dreams, beats align,\nWords and rhythm intertwine.\n\nVerse 2:\nNight and noise, we blend and grow,\nIn every pulse, we find our flow.`;
+    }
+
+    function playSong() {
+      const genre = document.getElementById('genre').value;
+      const bgm = document.getElementById('bgm');
+      const output = document.getElementById('output').innerText;
+
+      const bgmMap = {
+        ambient: 'https://cdn.pixabay.com/download/audio/2023/06/02/audio_b2c9f64056.mp3',
+        lofi: 'https://pixabay.com/music/beats-lofi-295209/',
+        pop: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_9c9fb197c3.mp3',
+        hiphop: 'https://cdn.pixabay.com/download/audio/2022/03/22/audio_f6e0d90d5f.mp3',
+        electronic: 'https://cdn.pixabay.com/download/audio/2022/03/29/audio_234b2e24ba.mp3'
+      };
+
+      bgm.src = bgmMap[genre] || '';
+      bgm.style.display = 'block';
+      bgm.play();
+
+      const utterance = new SpeechSynthesisUtterance(output);
+      utterance.lang = "en-US";
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+
+      visualizeAudio(bgm);
+    }
+
+    function downloadLyrics() {
+      const lyrics = document.getElementById('output').innerText;
+      const blob = new Blob([lyrics], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'lyrics.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function visualizeAudio(audioElement) {
+      const canvas = document.getElementById('visualizer');
+      canvasCtx = canvas.getContext('2d');
+
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+
+      const source = audioContext.createMediaElementSource(audioElement);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      function draw() {
+        requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          barHeight = dataArray[i];
+          canvasCtx.fillStyle = `rgb(${barHeight + 100}, 50, 150)`;
+          canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+          x += barWidth + 1;
+        }
+      }
+
+      draw();
+    }
+  </script>
+</body>
+</html>
